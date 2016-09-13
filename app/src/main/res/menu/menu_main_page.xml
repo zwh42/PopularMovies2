@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_refresh"
+          android:title="@string/menu_refresh"
+          android:showAsAction="ifRoom|withText"></item>
+    <item android:id="@+id/menu_most_popular"
+          android:title="@string/menu_most_popular"
+          android:showAsAction="never"></item>
+    <item android:id="@+id/menu_top_rated"
+          android:title="@string/menu_top_rated"
+          android:showAsAction="never"></item>
+
+</menu>
