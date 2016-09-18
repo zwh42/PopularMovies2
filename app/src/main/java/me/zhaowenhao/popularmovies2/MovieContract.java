@@ -1,6 +1,7 @@
 package me.zhaowenhao.popularmovies2;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -28,6 +29,10 @@ public class MovieContract {
         static final String MOVIE_RATING = "vote_average";
         static final String MOVIE_RELEASE_DATE = "release_date";
         static final String MOVIE_TRAILER_PATH = "trailer_path";
+
+        public static Uri buildMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
     }
 

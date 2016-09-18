@@ -6,11 +6,14 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by zhaowenhao on 16/9/12.
  */
 public class MovieProvider extends ContentProvider {
+    public static final String TAG = MovieProvider.class.getSimpleName();
+
     public static final int MOVIE_DIR = 0;
     public static final int MOVIE_ITEM = 1;
 
@@ -73,7 +76,26 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues){
-        return null;
+        final SQLiteDatabase db = mMovieDBHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri = null;
+
+        switch (match) {
+            case MOVIE_ITEM: {
+                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0) {
+                    returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to instert row into " + uri);
+                }
+                break;
+            }
+            default:
+                //throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return returnUri;
     }
 
     @Override
@@ -84,6 +106,36 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs){
         return 0;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mMovieDBHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case MOVIE_ITEM: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                Log.d(TAG, "bulkInsert: total " + returnCount + " movie inserted to database");
+                return returnCount;
+            }
+            default:
+                return super.bulkInsert(uri, values);
+
+        }
     }
 
 

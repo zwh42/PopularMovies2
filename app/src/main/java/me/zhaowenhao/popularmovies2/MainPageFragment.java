@@ -10,7 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.GridView;
 
 
 /**
@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 public class MainPageFragment extends Fragment {
     private static final String TAG = MainPageFragment.class.getSimpleName();
 
+    GridView mGridView;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -28,10 +30,16 @@ public class MainPageFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "start updating movie info...");
+        updateMovie();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_main_page, container, false);
-        //mMovieRecyclerView = (RecyclerView) v.findViewById(R.id.main_page_fragment_recycler_view);
-        //mMovieRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        mGridView = (GridView) v.findViewById(R.id.gridView);
 
         return v;
 

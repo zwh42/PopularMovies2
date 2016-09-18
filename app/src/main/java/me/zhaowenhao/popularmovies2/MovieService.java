@@ -1,32 +1,38 @@
 package me.zhaowenhao.popularmovies2;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 /**
  * Created by zhaowenhao on 16/9/14.
  */
-public class MovieService extends IntentService{
+public class MovieService extends IntentService {
     private static final String TAG = MovieService.class.getSimpleName();
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie";
     private static final String POPULAR = "popular";
     private static final String API_KEY = BuildConfig.THE_MOVIE_DB_API_KEY;
 
 
-    public MovieService(){
+    public MovieService() {
         super("Movie");
     }
 
     @Override
-    protected void onHandleIntent(Intent intent){
+    protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "onHandleIntent: started");
         fetchMovies();
         Log.d(TAG, "onHandleIntent: end");
@@ -62,15 +68,63 @@ public class MovieService extends IntentService{
         return new String(getUrlBytes(urlString));
     }
 
-    private void fetchMovies(){
+    private void fetchMovies() {
         String url = Uri.parse(BASE_URL).buildUpon().appendPath(POPULAR).appendQueryParameter("api_key", API_KEY).build().toString();
         Log.d(TAG, "fetchMovies: url = " + url);
 
-        try{
+        try {
             String jsonString = getUrl(url);
             Log.d(TAG, "fetchMovies: received json string: " + jsonString);
-        }catch (IOException e){
+            getMovieDataFromJSONString(jsonString);
+        } catch (IOException e) {
             Log.e(TAG, "fetchMovies: failed to fetch movie json", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "fetchMovies: failed in json processing", e);
+        }
+    }
+
+    private void getMovieDataFromJSONString(String jsonString) throws JSONException {
+        Vector<ContentValues> movieVector = new Vector<>();
+
+        String JSON_ARRAY_RESULT = "results";
+        String JSON_ID = "id";
+        String JSON_TITLE = "title";
+        String JSON_ORIGINAL_TITLE = "original_title";
+        String JSON_POSTER_PATH = "poster_path";
+        String JSON_OVERVIEW = "overview";
+        String JSON_POPULARITY = "popularity";
+        String JSON_RATING = "vote_average";
+        String JSON_RELEASE_STRING = "release_date";
+
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            JSONArray jsonArray = json.getJSONArray(JSON_ARRAY_RESULT);
+
+            JSONObject tempJson = null;
+            ContentValues movieValues = new ContentValues();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                tempJson = jsonArray.getJSONObject(i);
+                movieValues.put(MovieContract.MovieEntry.MOVIE_ID, tempJson.getString(JSON_ID));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE, tempJson.getString(JSON_ORIGINAL_TITLE));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_TITLE, tempJson.getString(JSON_TITLE));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_OVERVIEW, tempJson.getString(JSON_OVERVIEW));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_POPULARITY, tempJson.getString(JSON_POPULARITY));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_POSTER_PATH, tempJson.getString(JSON_POSTER_PATH));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_RATING, tempJson.getString(JSON_RATING));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_RELEASE_DATE, tempJson.getString(JSON_RELEASE_STRING));
+
+                movieVector.add(movieValues);
+
+            }
+
+            if (movieVector.size() > 0) {
+                ContentValues[] movieArray = new ContentValues[movieVector.size()];
+                movieVector.toArray(movieArray);
+                this.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieArray);
+                Log.d(TAG, "getMovieDataFromJSONString: Movie service completed. " + movieVector.size() + "inserted");
+            }
+        } catch (JSONException e) {
+            Log.d(TAG, "getMovieDataFromJSONString: failed to create JSON String" + jsonString, e);
         }
     }
 }
