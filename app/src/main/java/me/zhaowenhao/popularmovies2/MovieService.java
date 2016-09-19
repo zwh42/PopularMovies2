@@ -112,6 +112,7 @@ public class MovieService extends IntentService {
                 movieValues.put(MovieContract.MovieEntry.MOVIE_POSTER_PATH, tempJson.getString(JSON_POSTER_PATH));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RATING, tempJson.getString(JSON_RATING));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RELEASE_DATE, tempJson.getString(JSON_RELEASE_STRING));
+                //movieValues.put(MovieContract.MovieEntry.MOVIE_TRAILER_PATH, tempJson.);
 
                 movieVector.add(movieValues);
 

@@ -23,7 +23,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.MOVIE_ID + " INTEGER NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_TITLE + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE + " TEXT NOT NULL, "
-                + MovieContract.MovieEntry.MOVIE_POSTER_PATH + "TEXT NOT NULL, "
+                + MovieContract.MovieEntry.MOVIE_POSTER_PATH + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_OVERVIEW + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_POPULARITY + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_RATING + " TEXT NOT NULL, "

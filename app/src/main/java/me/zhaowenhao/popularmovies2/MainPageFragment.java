@@ -1,8 +1,12 @@
 package me.zhaowenhao.popularmovies2;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,10 +21,38 @@ import android.widget.GridView;
  * Created by zhaowenhao on 16/9/10.
  */
 
-public class MainPageFragment extends Fragment {
+public class MainPageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = MainPageFragment.class.getSimpleName();
 
     GridView mGridView;
+    MovieAdapter mMovieAdapter;
+
+    private static final int MOVIE_LOADER = 1;
+
+    private int mSortOrderKey = 1; //1: by popularity, 2: by rating
+
+    private static final String[] MOVIE_COLUMNS = {
+            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.MOVIE_ID,
+            MovieContract.MovieEntry.MOVIE_TITLE,
+            MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE,
+            MovieContract.MovieEntry.MOVIE_POSTER_PATH,
+            MovieContract.MovieEntry.MOVIE_OVERVIEW,
+            MovieContract.MovieEntry.MOVIE_POPULARITY,
+            MovieContract.MovieEntry.MOVIE_RATING,
+            MovieContract.MovieEntry.MOVIE_RELEASE_DATE,
+            //MovieContract.MovieEntry.MOVIE_TRAILER_PATH
+    };
+
+    static final int COLUMN_MOVIE_DB_ID = 0;
+    static final int COLUMN_MOVIE_ORIGINAL_ID = 1;
+    static final int COLUMN_MOVIE_TITLE = 2;
+    static final int COLUMN_MOVIE_ORIGINAL_TITLE = 3;
+    static final int COLUMN_MOVIE_POSTER_PATH = 4;
+    static final int COLUMN_MOVIE_OVERVIEW = 5;
+    static final int COLUMN_MOVIE_POPULARITY = 6;
+    static final int COLUMN_MOVIE_RATING = 7;
+    static final int COLUMN_MOVIE_RELEASE_DATE = 8;
 
 
     @Override
@@ -38,8 +70,12 @@ public class MainPageFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+
         View v = inflater.inflate(R.layout.fragment_main_page, container, false);
         mGridView = (GridView) v.findViewById(R.id.gridView);
+        mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+        mGridView.setAdapter(mMovieAdapter);
 
         return v;
 
@@ -62,10 +98,16 @@ public class MainPageFragment extends Fragment {
             }
             case R.id.menu_most_popular:
             {
+                mSortOrderKey = 1;
+                getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+                Log.d(TAG, "onOptionsItemSelected: sort by popularity");
                 break;
             }
             case R.id.menu_top_rated:
             {
+                mSortOrderKey = 2;
+                getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+                Log.d(TAG, "onOptionsItemSelected: sort by rating");
                 break;
             }
             default:
@@ -78,6 +120,57 @@ public class MainPageFragment extends Fragment {
     private void updateMovie(){
         Intent intent = new Intent(getActivity(), MovieService.class);
         getActivity().startService(intent);
+    }
+
+    /*
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        Log.d(TAG, "onActivityCreated: movie loader inited");
+        super.onActivityCreated(savedInstanceState);
+    }
+    */
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String sortOrder = "";
+        switch (mSortOrderKey) {
+            case 1: {
+                sortOrder = MovieContract.MovieEntry.MOVIE_POPULARITY + " DESC";
+                break;
+            }
+            case 2: {
+                sortOrder = MovieContract.MovieEntry.MOVIE_RATING + " DESC";
+                break;
+            }
+            default:
+                break;
+        }
+
+        Log.d(TAG, "onCreateLoader: sort order: " + sortOrder);
+
+        return new CursorLoader(
+                getActivity(),
+                MovieContract.MovieEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "onLoadFinished: started!");
+        Log.d(TAG, "onLoadFinished: data count" + data.getCount());
+        mMovieAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset: started!");
+        mMovieAdapter.swapCursor(null);
     }
 
 }
