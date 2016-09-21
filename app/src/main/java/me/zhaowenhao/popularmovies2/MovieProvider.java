@@ -82,7 +82,8 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             case MOVIE_DIR: {
-                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
+                //long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
+                long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
                     Log.d(TAG, "insert: " + returnUri.toString() + " , id = " + _id);
@@ -122,7 +123,8 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         Log.d(TAG, "bulkInsert: content value: " + value.toString());
-                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        //long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, MovieContract.MovieEntry.MOVIE_ID, value, SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) {
                             returnCount++;
                         }

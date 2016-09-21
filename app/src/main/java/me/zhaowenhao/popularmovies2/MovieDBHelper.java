@@ -20,15 +20,15 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase){
         final String SQL_CREATE_MOVIE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " ("
                 + MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, "
-                + MovieContract.MovieEntry.MOVIE_ID + " INTEGER NOT NULL, "
+                + MovieContract.MovieEntry.MOVIE_ID + " INTEGER UNIQUE NOT NULL, "  // UNIQUE to make db.insertWithOnConflict() work
                 + MovieContract.MovieEntry.MOVIE_TITLE + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_POSTER_PATH + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_OVERVIEW + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_POPULARITY + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.MOVIE_RATING + " TEXT NOT NULL, "
-                + MovieContract.MovieEntry.MOVIE_RELEASE_DATE + " TEXT NOT NULL "
-                //+ MovieContract.MovieEntry.MOVIE_TRAILER_PATH + " TEXT NOT NULL "
+                + MovieContract.MovieEntry.MOVIE_RELEASE_DATE + " TEXT NOT NULL, "
+                + MovieContract.MovieEntry.MOVIE_TRAILER_PATH + " TEXT NOT NULL "
                 + " ); " ;
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE);

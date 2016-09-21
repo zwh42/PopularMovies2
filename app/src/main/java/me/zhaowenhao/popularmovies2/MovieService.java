@@ -24,6 +24,7 @@ public class MovieService extends IntentService {
     private static final String TAG = MovieService.class.getSimpleName();
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie";
     private static final String POPULAR = "popular";
+    private static final String VIDEO = "videos";
     private static final String API_KEY = BuildConfig.THE_MOVIE_DB_API_KEY;
 
 
@@ -83,6 +84,28 @@ public class MovieService extends IntentService {
         }
     }
 
+    private String fetchMovieTrailer(String movieId) {
+        String JSON_ARRAY_RESULT = "results";
+        String url = Uri.parse(BASE_URL).buildUpon().appendPath(movieId).appendPath(VIDEO).appendQueryParameter("api_key", API_KEY).build().toString();
+        Log.d(TAG, "fetchMovieTrailer: url = " + url);
+        try {
+            String jsonString = getUrl(url);
+            Log.d(TAG, "fetchMovieTrailer: jsonString: " + jsonString);
+            if (jsonString != null) {
+                JSONArray jsonArray = (new JSONObject(jsonString)).getJSONArray(JSON_ARRAY_RESULT);
+                String trailerString = jsonArray.getJSONObject(0).getString("key");
+                Log.d(TAG, "fetchMovieTrailer: trailer string: " + trailerString);
+                return trailerString;
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "fetchMovieTrailer: failed to fetch movie json", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "fetchMovies: failed in json processing", e);
+        }
+        return "";
+    }
+
     private void getMovieDataFromJSONString(String jsonString) throws JSONException {
         Vector<ContentValues> movieVector = new Vector<>();
 
@@ -106,7 +129,9 @@ public class MovieService extends IntentService {
                 ContentValues movieValues = new ContentValues();
                 tempJson = jsonArray.getJSONObject(i);
                 Log.d(TAG, "getMovieDataFromJSONString,  i = " + i + ", json = " + tempJson.toString());
-                movieValues.put(MovieContract.MovieEntry.MOVIE_ID, tempJson.getString(JSON_ID));
+                String movieId = tempJson.getString(JSON_ID);
+
+                movieValues.put(MovieContract.MovieEntry.MOVIE_ID, movieId);
                 movieValues.put(MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE, tempJson.getString(JSON_ORIGINAL_TITLE));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_TITLE, tempJson.getString(JSON_TITLE));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_OVERVIEW, tempJson.getString(JSON_OVERVIEW));
@@ -114,7 +139,7 @@ public class MovieService extends IntentService {
                 movieValues.put(MovieContract.MovieEntry.MOVIE_POSTER_PATH, tempJson.getString(JSON_POSTER_PATH));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RATING, tempJson.getString(JSON_RATING));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RELEASE_DATE, tempJson.getString(JSON_RELEASE_STRING));
-                //movieValues.put(MovieContract.MovieEntry.MOVIE_TRAILER_PATH, tempJson.);
+                movieValues.put(MovieContract.MovieEntry.MOVIE_TRAILER_PATH, fetchMovieTrailer(movieId));
 
                 movieVector.add(movieValues);
 
