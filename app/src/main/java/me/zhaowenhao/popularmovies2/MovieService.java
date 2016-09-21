@@ -101,9 +101,11 @@ public class MovieService extends IntentService {
             JSONArray jsonArray = json.getJSONArray(JSON_ARRAY_RESULT);
 
             JSONObject tempJson = null;
-            ContentValues movieValues = new ContentValues();
+
             for (int i = 0; i < jsonArray.length(); i++) {
+                ContentValues movieValues = new ContentValues();
                 tempJson = jsonArray.getJSONObject(i);
+                Log.d(TAG, "getMovieDataFromJSONString,  i = " + i + ", json = " + tempJson.toString());
                 movieValues.put(MovieContract.MovieEntry.MOVIE_ID, tempJson.getString(JSON_ID));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE, tempJson.getString(JSON_ORIGINAL_TITLE));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_TITLE, tempJson.getString(JSON_TITLE));
@@ -121,6 +123,8 @@ public class MovieService extends IntentService {
             if (movieVector.size() > 0) {
                 ContentValues[] movieArray = new ContentValues[movieVector.size()];
                 movieVector.toArray(movieArray);
+
+                Log.d(TAG, "getMovieDataFromJSONString: URI: " + MovieContract.MovieEntry.CONTENT_URI.toString());
                 this.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieArray);
                 Log.d(TAG, "getMovieDataFromJSONString: Movie service completed. " + movieVector.size() + "inserted");
             }

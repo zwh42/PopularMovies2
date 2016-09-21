@@ -41,7 +41,7 @@ public class MovieAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         String posterPath = MOVIE_POSTER_BASE_URL + cursor.getString(MainPageFragment.COLUMN_MOVIE_POSTER_PATH);
         Log.d(TAG, "bindView: " + posterPath);
-        Picasso.with(mContext).load(R.drawable.doge).into(viewHolder.moviePosterView);
+        Picasso.with(mContext).load(posterPath).into(viewHolder.moviePosterView);
     }
 /*
     @Override

@@ -81,12 +81,13 @@ public class MovieProvider extends ContentProvider {
         Uri returnUri = null;
 
         switch (match) {
-            case MOVIE_ITEM: {
+            case MOVIE_DIR: {
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                    Log.d(TAG, "insert: " + returnUri.toString() + " , id = " + _id);
                 } else {
-                    throw new android.database.SQLException("Failed to instert row into " + uri);
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
             }
@@ -110,15 +111,17 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
+        Log.d(TAG, "bulkInsert: value size: " + values.length);
         final SQLiteDatabase db = mMovieDBHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-
+        Log.d(TAG, "bulkInsert: started! match = " + match);
         switch (match) {
-            case MOVIE_ITEM: {
+            case MOVIE_DIR: {
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
+                        Log.d(TAG, "bulkInsert: content value: " + value.toString());
                         long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
