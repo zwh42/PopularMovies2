@@ -18,6 +18,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".DetailPageActivity">
+
+        </activity>
+
         <provider
             android:authorities="me.zhaowenhao.popularmovies2.app"
             android:name=".MovieProvider"

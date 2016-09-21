@@ -14,8 +14,10 @@ public class DetailPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        MainPageFragment main_page_fragment = new MainPageFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_page_fragment_container, main_page_fragment).commit();
+        DetailPageFragment detailPageFragment = new DetailPageFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.detail_fragment_container, detailPageFragment).commit();
 
     }
+
+
 }

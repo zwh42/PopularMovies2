@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 
@@ -76,6 +77,21 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
         mGridView = (GridView) v.findViewById(R.id.gridView);
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         mGridView.setAdapter(mMovieAdapter);
+
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemClick: position " + position + " clicked");
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                if (cursor != null) {
+                    String movieID = cursor.getString(COLUMN_MOVIE_ORIGINAL_ID);
+                    Log.d(TAG, "onItemClick: movie name at " + position + " is " + cursor.getString(COLUMN_MOVIE_TITLE) + ", ID is: " + movieID);
+                    Intent intent = new Intent(getActivity(), DetailPageActivity.class);
+                    intent.putExtra(DetailPageFragment.MOVIE_ID, movieID);
+                    startActivity(intent);
+                }
+            }
+        });
 
         return v;
 
