@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,7 +77,9 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
         View v = inflater.inflate(R.layout.fragment_main_page, container, false);
         mGridView = (GridView) v.findViewById(R.id.gridView);
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+        setGridViewGeometry();
         mGridView.setAdapter(mMovieAdapter);
+
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -136,6 +139,19 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     private void updateMovie(){
         Intent intent = new Intent(getActivity(), MovieService.class);
         getActivity().startService(intent);
+    }
+
+    private void setGridViewGeometry() {
+        final int POSTER_WIDHT_PX = 185; // hard code for now
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+        float xdpi = displayMetrics.xdpi;
+        float ydpi = displayMetrics.ydpi;
+        Log.d(TAG, "setGridViewGeometry: screenWidth = " + screenWidth + ", screenHeight = " + screenHeight);
+        Log.d(TAG, "setGridViewGeometry: xdpi = " + xdpi + ", ydpi = " + ydpi);
+        mGridView.setNumColumns(screenWidth / POSTER_WIDHT_PX + 1);
+
     }
 
     /*

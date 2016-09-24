@@ -68,7 +68,7 @@ public class DetailPageFragment extends Fragment {
         mPopularity.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_POPULARITY));
         mOverview.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_OVERVIEW));
 
-        
+
         mCursor.close();
 
 
