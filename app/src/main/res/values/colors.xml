@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorMovieTitleBackground">#388E8E</color>
     <color name="colorMovieTitleText">#E0FFFF</color>
+    <color name="colorMarkAsFavorite">#ff6d00</color>
+    <color name="colorMarkAsNotFavorite">#6b6969</color>
 </resources>

@@ -118,15 +118,15 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
             case R.id.menu_most_popular:
             {
                 mSortOrderKey = 1;
+                updateMovie();
                 getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
-                Log.d(TAG, "onOptionsItemSelected: sort by popularity");
                 break;
             }
             case R.id.menu_top_rated:
             {
                 mSortOrderKey = 2;
+                updateMovie();
                 getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
-                Log.d(TAG, "onOptionsItemSelected: sort by rating");
                 break;
             }
             default:
@@ -138,11 +138,12 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void updateMovie(){
         Intent intent = new Intent(getActivity(), MovieService.class);
+        intent.putExtra(MovieService.FETCH_TYPE, mSortOrderKey);
         getActivity().startService(intent);
     }
 
     private void setGridViewGeometry() {
-        final int POSTER_WIDHT_PX = 185; // hard code for now
+        final int POSTER_WIDTH_PX = 185; // hard code for now
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         int screenWidth = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;
@@ -150,7 +151,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
         float ydpi = displayMetrics.ydpi;
         Log.d(TAG, "setGridViewGeometry: screenWidth = " + screenWidth + ", screenHeight = " + screenHeight);
         Log.d(TAG, "setGridViewGeometry: xdpi = " + xdpi + ", ydpi = " + ydpi);
-        mGridView.setNumColumns(screenWidth / POSTER_WIDHT_PX + 1);
+        mGridView.setNumColumns(screenWidth / POSTER_WIDTH_PX + 1);
 
     }
 

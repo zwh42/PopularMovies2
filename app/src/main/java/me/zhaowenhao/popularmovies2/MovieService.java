@@ -21,12 +21,16 @@ import java.util.Vector;
  * Created by zhaowenhao on 16/9/14.
  */
 public class MovieService extends IntentService {
+    public static final String FETCH_TYPE = "FETCH_TYPE"; //popular or top_rated
+
     private static final String TAG = MovieService.class.getSimpleName();
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie";
     private static final String POPULAR = "popular";
+    private static final String TOP_RATED = "top_rated";
     private static final String VIDEO = "videos";
     private static final String API_KEY = BuildConfig.THE_MOVIE_DB_API_KEY;
 
+    private String FETCH_ENDPOINT = "popular"; //top_rated
 
     public MovieService() {
         super("Movie");
@@ -35,6 +39,20 @@ public class MovieService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "onHandleIntent: started");
+        switch (intent.getIntExtra(FETCH_TYPE, 1)) {
+            case 1: {
+                FETCH_ENDPOINT = POPULAR;
+                break;
+            }
+            case 2: {
+                FETCH_ENDPOINT = TOP_RATED;
+                break;
+            }
+            default: {
+                FETCH_ENDPOINT = POPULAR;
+            }
+        }
+
         fetchMovies();
         Log.d(TAG, "onHandleIntent: end");
     }
@@ -70,7 +88,7 @@ public class MovieService extends IntentService {
     }
 
     private void fetchMovies() {
-        String url = Uri.parse(BASE_URL).buildUpon().appendPath(POPULAR).appendQueryParameter("api_key", API_KEY).build().toString();
+        String url = Uri.parse(BASE_URL).buildUpon().appendPath(FETCH_ENDPOINT).appendQueryParameter("api_key", API_KEY).build().toString();
         Log.d(TAG, "fetchMovies: url = " + url);
 
         try {

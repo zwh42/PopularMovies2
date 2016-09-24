@@ -7,10 +7,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
+
+import java.text.DecimalFormat;
 
 /**
  * Created by zhaowenhao on 16/9/12.
@@ -33,6 +37,8 @@ public class DetailPageFragment extends Fragment {
     private TextView mPopularity;
     private TextView mOverview;
 
+    private ToggleButton mFavoriteButton;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMovieID = getActivity().getIntent().getStringExtra(MOVIE_ID);
@@ -50,6 +56,10 @@ public class DetailPageFragment extends Fragment {
         mPopularity = (TextView) v.findViewById(R.id.popularity);
         mOverview = (TextView) v.findViewById(R.id.overview);
 
+        mFavoriteButton = (ToggleButton) v.findViewById(R.id.favorite_button);
+
+        DecimalFormat decimalFormat = new DecimalFormat(".00");
+
         mCursor = getActivity().getContentResolver().query(
                 MovieContract.MovieEntry.CONTENT_URI,
                 null,
@@ -64,10 +74,24 @@ public class DetailPageFragment extends Fragment {
 
         mTitle.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_TITLE));
         mReleaseDate.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_RELEASE_DATE));
-        mRating.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_RATING));
-        mPopularity.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_POPULARITY));
+        mRating.setText(getString(R.string.rating) + " "
+                + decimalFormat.format(Double.parseDouble(mCursor.getString(MainPageFragment.COLUMN_MOVIE_RATING))) + "/10");
+        mPopularity.setText(getString(R.string.popularity) + " "
+                + decimalFormat.format(Double.parseDouble(mCursor.getString(MainPageFragment.COLUMN_MOVIE_POPULARITY))));
         mOverview.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_OVERVIEW));
 
+        mFavoriteButton.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            mFavoriteButton.setTextColor(getResources().getColor(R.color.colorMarkAsFavorite));
+                        } else {
+                            mFavoriteButton.setTextColor(getResources().getColor(R.color.colorMarkAsNotFavorite));
+                        }
+                    }
+                }
+        );
 
         mCursor.close();
 
