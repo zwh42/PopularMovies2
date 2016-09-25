@@ -1,5 +1,6 @@
 package me.zhaowenhao.popularmovies2;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,8 +37,9 @@ public class DetailPageFragment extends Fragment {
     private TextView mRating;
     private TextView mPopularity;
     private TextView mOverview;
-
     private ToggleButton mFavoriteButton;
+
+    private boolean isMarkedFavorite;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,14 +82,35 @@ public class DetailPageFragment extends Fragment {
                 + decimalFormat.format(Double.parseDouble(mCursor.getString(MainPageFragment.COLUMN_MOVIE_POPULARITY))));
         mOverview.setText(mCursor.getString(MainPageFragment.COLUMN_MOVIE_OVERVIEW));
 
+        isMarkedFavorite = mCursor.getInt(MainPageFragment.COLUMN_MOVIE_FAVORITE) == 1;
+        mFavoriteButton.setChecked(isMarkedFavorite);
+
         mFavoriteButton.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
+                    String sqlSelection = null;
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
                             mFavoriteButton.setTextColor(getResources().getColor(R.color.colorMarkAsFavorite));
                         } else {
                             mFavoriteButton.setTextColor(getResources().getColor(R.color.colorMarkAsNotFavorite));
+                        }
+
+                        if (isChecked != isMarkedFavorite) {
+                            ContentValues updateFavoriteStatus = new ContentValues();
+
+                            if (isChecked) {
+                                updateFavoriteStatus.put(MovieContract.MovieEntry.MOVIE_FAVORITE, 1);
+                            } else {
+                                updateFavoriteStatus.put(MovieContract.MovieEntry.MOVIE_FAVORITE, 0);
+                            }
+
+                            getActivity().getContentResolver().update(
+                                    MovieContract.MovieEntry.CONTENT_URI,
+                                    updateFavoriteStatus,
+                                    MovieContract.MovieEntry.MOVIE_ID + " = " + mMovieID,
+                                    null
+                            );
                         }
                     }
                 }

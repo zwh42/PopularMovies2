@@ -83,7 +83,27 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE_DIR: {
                 //long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
-                long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+                //long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+
+                long _id;
+                Cursor cursor = db.query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        null,
+                        MovieContract.MovieEntry.MOVIE_ID + " = " + contentValues.getAsString(MovieContract.MovieEntry.MOVIE_ID),
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+                if (cursor.getCount() == 0) {
+                    _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
+                    Log.d(TAG, "bulkInsert: inserted: " + contentValues.toString());
+                } else {
+                    _id = -1;
+                }
+
+
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
                     Log.d(TAG, "insert: " + returnUri.toString() + " , id = " + _id);
@@ -93,16 +113,29 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             default:
+
                 //throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs){
-        return 0;
+        int updatedRows = 0;
+        final SQLiteDatabase db = mMovieDBHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIE_DIR: {
+                updatedRows = db.update(MovieContract.MovieEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+                Log.d(TAG, "update: updated rows: " + updatedRows);
+                break;
+            }
+            default: {
+            }
+        }
+
+        return updatedRows;
     }
 
     @Override
@@ -122,9 +155,31 @@ public class MovieProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        Log.d(TAG, "bulkInsert: content value: " + value.toString());
+
+                        long _id;
+                        Log.d(TAG, "bulkInsert: content value movie ID: " + value.getAsString(MovieContract.MovieEntry.MOVIE_ID));
                         //long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
-                        long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, MovieContract.MovieEntry.MOVIE_ID, value, SQLiteDatabase.CONFLICT_REPLACE);
+                        //_id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, MovieContract.MovieEntry.MOVIE_ID, value, SQLiteDatabase.CONFLICT_REPLACE);
+
+
+                        Cursor cursor = db.query(
+                                MovieContract.MovieEntry.TABLE_NAME,
+                                null,
+                                MovieContract.MovieEntry.MOVIE_ID + " = " + value.getAsString(MovieContract.MovieEntry.MOVIE_ID),
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+
+                        if (cursor.getCount() == 0) {
+                            _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                            Log.d(TAG, "bulkInsert: inserted: " + value.toString());
+                        } else {
+                            _id = -1;
+                        }
+
+
                         if (_id != -1) {
                             returnCount++;
                         }

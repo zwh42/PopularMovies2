@@ -9,5 +9,10 @@
     <item android:id="@+id/menu_top_rated"
           android:title="@string/menu_top_rated"
           android:showAsAction="never"></item>
+    <item
+        android:id="@+id/menu_my_favorite"
+        android:title="My Favorite"
+        android:showAsAction="never">
+    </item>
 
 </menu>

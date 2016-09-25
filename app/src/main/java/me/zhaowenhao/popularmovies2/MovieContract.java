@@ -29,6 +29,7 @@ public class MovieContract {
         static final String MOVIE_RATING = "vote_average";
         static final String MOVIE_RELEASE_DATE = "release_date";
         static final String MOVIE_TRAILER_PATH = "trailer_path";
+        static final String MOVIE_FAVORITE = "mark_as_favorite";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

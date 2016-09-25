@@ -29,9 +29,11 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     GridView mGridView;
     MovieAdapter mMovieAdapter;
 
+    private String sqlSelection = null;
+
     private static final int MOVIE_LOADER = 1;
 
-    private int mSortOrderKey = 1; //1: by popularity, 2: by rating
+    private int mSortOrderKey = 1; //1: by popularity, 2: by rating, 3: my favorite
 
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -43,7 +45,8 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
             MovieContract.MovieEntry.MOVIE_POPULARITY,
             MovieContract.MovieEntry.MOVIE_RATING,
             MovieContract.MovieEntry.MOVIE_RELEASE_DATE,
-            //MovieContract.MovieEntry.MOVIE_TRAILER_PATH
+            MovieContract.MovieEntry.MOVIE_TRAILER_PATH,
+            MovieContract.MovieEntry.MOVIE_FAVORITE,
     };
 
     static final int COLUMN_MOVIE_DB_ID = 0;
@@ -55,6 +58,9 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COLUMN_MOVIE_POPULARITY = 6;
     static final int COLUMN_MOVIE_RATING = 7;
     static final int COLUMN_MOVIE_RELEASE_DATE = 8;
+    static final int COLUMN_MOVIE_TRAILER_PATH = 9;
+    static final int COLUMN_MOVIE_FAVORITE = 10;
+
 
 
     @Override
@@ -129,6 +135,12 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
                 getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
                 break;
             }
+            case R.id.menu_my_favorite: {
+                mSortOrderKey = 3;
+                updateMovie();
+                getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+                break;
+            }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -171,15 +183,23 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
         switch (mSortOrderKey) {
             case 1: {
                 sortOrder = MovieContract.MovieEntry.MOVIE_POPULARITY + " DESC";
+                sqlSelection = null;
                 break;
             }
             case 2: {
                 sortOrder = MovieContract.MovieEntry.MOVIE_RATING + " DESC";
+                sqlSelection = null;
+                break;
+            }
+            case 3: {
+                sortOrder = MovieContract.MovieEntry.MOVIE_POPULARITY + " DESC";
+                sqlSelection = MovieContract.MovieEntry.MOVIE_FAVORITE + " = " + "1";
                 break;
             }
             default:
                 break;
         }
+
 
         Log.d(TAG, "onCreateLoader: sort order: " + sortOrder);
 
@@ -187,7 +207,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
                 getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 MOVIE_COLUMNS,
-                null,
+                sqlSelection,
                 null,
                 sortOrder
         );
