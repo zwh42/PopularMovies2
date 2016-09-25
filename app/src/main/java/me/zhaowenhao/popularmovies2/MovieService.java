@@ -28,6 +28,8 @@ public class MovieService extends IntentService {
     private static final String POPULAR = "popular";
     private static final String TOP_RATED = "top_rated";
     private static final String VIDEO = "videos";
+    private static final String REVIEW = "reviews";
+
     private static final String API_KEY = BuildConfig.THE_MOVIE_DB_API_KEY;
 
     private String FETCH_ENDPOINT = "popular"; //top_rated
@@ -102,18 +104,41 @@ public class MovieService extends IntentService {
         }
     }
 
-    private String fetchMovieTrailer(String movieId) {
+    private void fetchMovieTrailerFromMovieId(String movieId) {
+        Vector<ContentValues> trailerVector = new Vector<>();
+
         String JSON_ARRAY_RESULT = "results";
+        String JSON_TRAILER_ID = "id";
+        String JSON_TRAILER_KEY = "key";
+        String JSON_TRAILER_NAME = "name";
+
         String url = Uri.parse(BASE_URL).buildUpon().appendPath(movieId).appendPath(VIDEO).appendQueryParameter("api_key", API_KEY).build().toString();
+
+
         Log.d(TAG, "fetchMovieTrailer: url = " + url);
         try {
             String jsonString = getUrl(url);
             Log.d(TAG, "fetchMovieTrailer: jsonString: " + jsonString);
             if (jsonString != null) {
                 JSONArray jsonArray = (new JSONObject(jsonString)).getJSONArray(JSON_ARRAY_RESULT);
-                String trailerString = jsonArray.getJSONObject(0).getString("key");
-                Log.d(TAG, "fetchMovieTrailer: trailer string: " + trailerString);
-                return trailerString;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    ContentValues trailerValues = new ContentValues();
+                    JSONObject tmpJson = jsonArray.getJSONObject(i);
+                    trailerValues.put(MovieContract.MovieEntry.MOVIE_ID, movieId);
+                    trailerValues.put(MovieContract.MovieEntry.TRAILER_ID, tmpJson.getString(JSON_TRAILER_ID));
+                    trailerValues.put(MovieContract.MovieEntry.TRAILER_KEY, tmpJson.getString(JSON_TRAILER_KEY));
+                    trailerValues.put(MovieContract.MovieEntry.TRAILER_NAME, tmpJson.getString(JSON_TRAILER_NAME));
+                    Log.d(TAG, "fetchMovieTrailerFromMovieId: trailer key: " + tmpJson.getString(JSON_TRAILER_KEY));
+
+                    trailerVector.add(trailerValues);
+                }
+
+                if (trailerVector.size() > 0) {
+                    ContentValues[] trailerArray = new ContentValues[trailerVector.size()];
+                    trailerVector.toArray(trailerArray);
+                    this.getContentResolver().bulkInsert(MovieContract.MovieEntry.TRAILER_CONTENT_URI, trailerArray);
+                }
+
             }
 
         } catch (IOException e) {
@@ -121,7 +146,58 @@ public class MovieService extends IntentService {
         } catch (JSONException e) {
             Log.e(TAG, "fetchMovies: failed in json processing", e);
         }
-        return "";
+        return;
+    }
+
+
+    private void fetchMovieReviewFromMovieId(String movieId) {
+        Vector<ContentValues> reviewVector = new Vector<>();
+
+        String JSON_ARRAY_RESULT = "results";
+        String JSON_REVIEW_ID = "id";
+        String JSON_REVIEW_AUTHOR = "author";
+        String JSON_REVIEW_CONTENT = "content";
+        String JSON_REVIEW_URL = "url";
+
+
+        String url = Uri.parse(BASE_URL).buildUpon().appendPath(movieId).appendPath(REVIEW).appendQueryParameter("api_key", API_KEY).build().toString();
+
+
+        Log.d(TAG, "fetchMovieReview: url = " + url);
+        try {
+            String jsonString = getUrl(url);
+            Log.d(TAG, "fetchMovieReview: jsonString: " + jsonString);
+            if (jsonString != null) {
+                JSONArray jsonArray = (new JSONObject(jsonString)).getJSONArray(JSON_ARRAY_RESULT);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    ContentValues trailerValues = new ContentValues();
+                    JSONObject tmpJson = jsonArray.getJSONObject(i);
+                    trailerValues.put(MovieContract.MovieEntry.MOVIE_ID, movieId);
+                    trailerValues.put(MovieContract.MovieEntry.REVIEW_ID, tmpJson.getString(JSON_REVIEW_ID));
+                    trailerValues.put(MovieContract.MovieEntry.REVIEW_AUTHOR, tmpJson.getString(JSON_REVIEW_AUTHOR));
+                    trailerValues.put(MovieContract.MovieEntry.REVIEW_CONTENT, tmpJson.getString(JSON_REVIEW_CONTENT));
+                    trailerValues.put(MovieContract.MovieEntry.REVIEW_URL, tmpJson.getString(JSON_REVIEW_URL));
+
+                    Log.d(TAG, "fetchMovieReview: review author: " + tmpJson.getString(JSON_REVIEW_AUTHOR));
+
+                    reviewVector.add(trailerValues);
+                }
+
+                if (reviewVector.size() > 0) {
+                    ContentValues[] reviewArray = new ContentValues[reviewVector.size()];
+                    reviewVector.toArray(reviewArray);
+                    this.getContentResolver().bulkInsert(MovieContract.MovieEntry.REVIEW_CONTENT_URI, reviewArray);
+                    Log.d(TAG, "fetchMovieReviewFromMovieId: " + reviewVector.size() + " reviewed appended");
+                }
+
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "fetchMovieTrailer: failed to fetch movie json", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "fetchMovies: failed in json processing", e);
+        }
+        return;
     }
 
     private void getMovieDataFromJSONString(String jsonString) throws JSONException {
@@ -157,20 +233,19 @@ public class MovieService extends IntentService {
                 movieValues.put(MovieContract.MovieEntry.MOVIE_POSTER_PATH, tempJson.getString(JSON_POSTER_PATH));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RATING, tempJson.getString(JSON_RATING));
                 movieValues.put(MovieContract.MovieEntry.MOVIE_RELEASE_DATE, tempJson.getString(JSON_RELEASE_STRING));
-                movieValues.put(MovieContract.MovieEntry.MOVIE_TRAILER_PATH, fetchMovieTrailer(movieId));
+                movieValues.put(MovieContract.MovieEntry.MOVIE_TRAILER_PATH, "PLACE_HOLDER"); //move trailer to a separate table
                 movieValues.put(MovieContract.MovieEntry.MOVIE_FAVORITE, 0); //0 as not favorite
-
                 movieVector.add(movieValues);
+
+                fetchMovieTrailerFromMovieId(movieId);
+                fetchMovieReviewFromMovieId(movieId);
 
             }
 
             if (movieVector.size() > 0) {
                 ContentValues[] movieArray = new ContentValues[movieVector.size()];
                 movieVector.toArray(movieArray);
-
-                Log.d(TAG, "getMovieDataFromJSONString: URI: " + MovieContract.MovieEntry.CONTENT_URI.toString());
-                this.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieArray);
-                Log.d(TAG, "getMovieDataFromJSONString: Movie service completed. " + movieVector.size() + "inserted");
+                this.getContentResolver().bulkInsert(MovieContract.MovieEntry.MOVIE_CONTENT_URI, movieArray);
             }
         } catch (JSONException e) {
             Log.d(TAG, "getMovieDataFromJSONString: failed to create JSON String" + jsonString, e);

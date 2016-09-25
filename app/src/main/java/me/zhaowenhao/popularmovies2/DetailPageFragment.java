@@ -63,7 +63,7 @@ public class DetailPageFragment extends Fragment {
         DecimalFormat decimalFormat = new DecimalFormat(".00");
 
         mCursor = getActivity().getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MovieEntry.MOVIE_CONTENT_URI,
                 null,
                 MovieContract.MovieEntry.MOVIE_ID + " = " + mMovieID,
                 null,
@@ -106,7 +106,7 @@ public class DetailPageFragment extends Fragment {
                             }
 
                             getActivity().getContentResolver().update(
-                                    MovieContract.MovieEntry.CONTENT_URI,
+                                    MovieContract.MovieEntry.MOVIE_CONTENT_URI,
                                     updateFavoriteStatus,
                                     MovieContract.MovieEntry.MOVIE_ID + " = " + mMovieID,
                                     null

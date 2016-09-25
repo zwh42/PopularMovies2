@@ -18,7 +18,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase){
-        final String SQL_CREATE_MOVIE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " ("
+        final String SQL_CREATE_MOVIE = "CREATE TABLE " + MovieContract.MovieEntry.MOVIE_TABLE_NAME + " ("
                 + MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, "
                 + MovieContract.MovieEntry.MOVIE_ID + " INTEGER UNIQUE NOT NULL, "  // UNIQUE to make db.insertWithOnConflict() work
                 + MovieContract.MovieEntry.MOVIE_TITLE + " TEXT NOT NULL, "
@@ -32,12 +32,34 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.MOVIE_FAVORITE + " INTEGER "
                 + " ); " ;
 
+        final String SQL_CREATE_REVIEW = "CREATE TABLE " + MovieContract.MovieEntry.REVIEW_TABLE_NAME + " ("
+                + MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, "
+                + MovieContract.MovieEntry.MOVIE_ID + " INTEGER NOT NULL, "  // UNIQUE to make db.insertWithOnConflict() work
+                + MovieContract.MovieEntry.REVIEW_ID + " INTEGER, "
+                + MovieContract.MovieEntry.REVIEW_AUTHOR + " TEXT, "
+                + MovieContract.MovieEntry.REVIEW_CONTENT + " TEXT, "
+                + MovieContract.MovieEntry.REVIEW_URL + " TEXT "
+                + " ); ";
+
+        final String SQL_CREATE_TRAILER = "CREATE TABLE " + MovieContract.MovieEntry.TRAILER_TABLE_NAME + " ("
+                + MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, "
+                + MovieContract.MovieEntry.MOVIE_ID + " INTEGER NOT NULL, "  // UNIQUE to make db.insertWithOnConflict() work
+                + MovieContract.MovieEntry.TRAILER_ID + " TEXT, "
+                + MovieContract.MovieEntry.TRAILER_KEY + " TEXT, "
+                + MovieContract.MovieEntry.TRAILER_NAME + " TEXT "
+                + " ); ";
+
+
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE);
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEW);
+        sqLiteDatabase.execSQL(SQL_CREATE_TRAILER);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion){
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.MOVIE_TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TRAILER_TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.REVIEW_TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

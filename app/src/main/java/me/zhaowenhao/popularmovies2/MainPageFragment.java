@@ -36,7 +36,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     private int mSortOrderKey = 1; //1: by popularity, 2: by rating, 3: my favorite
 
     private static final String[] MOVIE_COLUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.MOVIE_TABLE_NAME + "." + MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.MOVIE_ID,
             MovieContract.MovieEntry.MOVIE_TITLE,
             MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE,
@@ -205,7 +205,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
 
         return new CursorLoader(
                 getActivity(),
-                MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MovieEntry.MOVIE_CONTENT_URI,
                 MOVIE_COLUMNS,
                 sqlSelection,
                 null,
