@@ -7,4 +7,7 @@
     <string name="rating">Rating: </string>
     <string name="popularity">Popularity: </string>
     <string name="favorite">favorite</string>
+    <string name="overview">Overview</string>
+    <string name="trailer">Trailer</string>
+    <string name="review">Review</string>
 </resources>
