@@ -7,4 +7,5 @@
     <color name="colorMovieTitleText">#E0FFFF</color>
     <color name="colorMarkAsFavorite">#ff6d00</color>
     <color name="colorMarkAsNotFavorite">#6b6969</color>
+
 </resources>

@@ -22,6 +22,14 @@
 
         </activity>
 
+        <activity android:name=".ReviewPageActivity">
+
+        </activity>
+
+        <activity android:name=".TrailerPageActivity">
+
+        </activity>
+
         <provider
             android:authorities="me.zhaowenhao.popularmovies2.app"
             android:name=".MovieProvider"

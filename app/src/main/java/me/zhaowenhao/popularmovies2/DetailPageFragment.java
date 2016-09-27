@@ -1,6 +1,7 @@
 package me.zhaowenhao.popularmovies2;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +41,9 @@ public class DetailPageFragment extends Fragment {
     private TextView mOverview;
     private ToggleButton mFavoriteButton;
 
+    private Button mReviewButton;
+    private Button mTrailerButton;
+
     private boolean isMarkedFavorite;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,9 @@ public class DetailPageFragment extends Fragment {
         mOverview = (TextView) v.findViewById(R.id.overview);
 
         mFavoriteButton = (ToggleButton) v.findViewById(R.id.favorite_button);
+
+        mReviewButton = (Button) v.findViewById(R.id.review_button);
+        mTrailerButton = (Button) v.findViewById(R.id.trailer_button);
 
         DecimalFormat decimalFormat = new DecimalFormat(".00");
 
@@ -118,6 +126,23 @@ public class DetailPageFragment extends Fragment {
 
         mCursor.close();
 
+        mReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), ReviewPageActivity.class);
+                i.putExtra(ReviewPageFragment.MOVIE_ID, mMovieID);
+                startActivity(i);
+            }
+        });
+
+        mTrailerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), TrailerPageActivity.class);
+                i.putExtra(TrailerPageFragment.MOVIE_ID, mMovieID);
+                startActivity(i);
+            }
+        });
 
         return v;
     }
