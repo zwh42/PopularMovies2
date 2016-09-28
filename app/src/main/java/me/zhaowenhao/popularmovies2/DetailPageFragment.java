@@ -29,6 +29,8 @@ public class DetailPageFragment extends Fragment {
 
     public static final String MOVIE_ID = "MOVIE_ID";
 
+    public static final String DETAIL_PAGE_FRAGMENT_TAG = "DETAIL_PAGE_FRAGMENT_TAG";
+
     private String mMovieID;
     private Cursor mCursor;
     private String posterUrl;
@@ -48,7 +50,14 @@ public class DetailPageFragment extends Fragment {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mMovieID = getActivity().getIntent().getStringExtra(MOVIE_ID);
+
+        Bundle args = getArguments();
+        if (args == null) {
+            mMovieID = getActivity().getIntent().getStringExtra(MOVIE_ID);
+        } else {
+            mMovieID = args.getString(MOVIE_ID);
+        }
+
         Log.d(TAG, "onCreate: passed movie id is: " + mMovieID);
 
     }

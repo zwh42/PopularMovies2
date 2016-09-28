@@ -26,6 +26,7 @@ import android.widget.GridView;
 public class MainPageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = MainPageFragment.class.getSimpleName();
 
+
     GridView mGridView;
     MovieAdapter mMovieAdapter;
 
@@ -95,9 +96,19 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
                 if (cursor != null) {
                     String movieID = cursor.getString(COLUMN_MOVIE_ORIGINAL_ID);
                     Log.d(TAG, "onItemClick: movie name at " + position + " is " + cursor.getString(COLUMN_MOVIE_TITLE) + ", ID is: " + movieID);
-                    Intent intent = new Intent(getActivity(), DetailPageActivity.class);
-                    intent.putExtra(DetailPageFragment.MOVIE_ID, movieID);
-                    startActivity(intent);
+
+                    if (MainPageActivity.isTwoPane == false) {
+                        Intent intent = new Intent(getActivity(), DetailPageActivity.class);
+                        intent.putExtra(DetailPageFragment.MOVIE_ID, movieID);
+                        startActivity(intent);
+                    } else {
+                        Bundle args = new Bundle();
+                        args.putString(DetailPageFragment.MOVIE_ID, movieID);
+                        DetailPageFragment fragment = new DetailPageFragment();
+                        fragment.setArguments(args);
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.movie_detail_container, fragment, DetailPageFragment.DETAIL_PAGE_FRAGMENT_TAG).commit();
+                    }
                 }
             }
         });
@@ -155,7 +166,11 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void setGridViewGeometry() {
-        final int POSTER_WIDTH_PX = 185; // hard code for now
+        int POSTER_WIDTH_PX = 185; // hard code for now
+        if (MainPageActivity.isTwoPane) {
+            POSTER_WIDTH_PX = POSTER_WIDTH_PX * 2;  // for land and tablet
+        }
+
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         int screenWidth = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;

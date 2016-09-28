@@ -7,7 +7,7 @@ public class MainPageActivity extends AppCompatActivity {
 
     private static final String TAG = MainPageActivity.class.getSimpleName();
 
-    private boolean isTwoPane = false;
+    public static boolean isTwoPane = false;
 
 
     @Override
@@ -17,8 +17,11 @@ public class MainPageActivity extends AppCompatActivity {
 
         if(findViewById(R.id.movie_detail_container) != null){
             isTwoPane = true;
-            DetailPageFragment detail_page_fragment = new DetailPageFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, detail_page_fragment).commit();
+            if (savedInstanceState == null) {
+                DetailPageFragment detail_page_fragment = new DetailPageFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, detail_page_fragment, DetailPageFragment.DETAIL_PAGE_FRAGMENT_TAG).commit();
+            }
+
         }else{
             isTwoPane = false;
         }
