@@ -77,6 +77,12 @@ public class DetailPageFragment extends Fragment {
                 null,
                 null
         );
+
+        if (mCursor.getCount() == 0) {
+            mCursor.close();
+            return v;
+        }
+
         mCursor.moveToFirst();
         posterUrl = MOVIE_POSTER_BASE_URL + mCursor.getString(MainPageFragment.COLUMN_MOVIE_POSTER_PATH);
         Log.d(TAG, "onCreate: poster url: " + posterUrl);

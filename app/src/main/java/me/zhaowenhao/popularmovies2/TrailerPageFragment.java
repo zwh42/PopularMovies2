@@ -5,7 +5,9 @@ package me.zhaowenhao.popularmovies2;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.CursorAdapter;
@@ -25,6 +27,7 @@ public class TrailerPageFragment extends Fragment {
     private String mMovieID;
 
     public static final String MOVIE_ID = "MOVIE_ID";
+    public static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
 
 
     @Override
@@ -74,6 +77,16 @@ public class TrailerPageFragment extends Fragment {
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder) view.getTag();
             viewHolder.trailerTextView.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.TRAILER_NAME))));
+            final String url = YOUTUBE_URL + cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.TRAILER_KEY));
+            Log.d(TAG, "bindView: trailer url: " + url);
+            viewHolder.trailerTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
+            });
 
 
         }
