@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 
 
 /**
@@ -62,7 +63,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COLUMN_MOVIE_TRAILER_PATH = 9;
     static final int COLUMN_MOVIE_FAVORITE = 10;
 
-
+    private ProgressBar mLoadingProgressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -86,6 +87,10 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         setGridViewGeometry();
         mGridView.setAdapter(mMovieAdapter);
+
+
+        mLoadingProgressBar = (ProgressBar) v.findViewById(R.id.loading_progress_bar);
+        //mLoadingProgressBar.setVisibility(View.VISIBLE);
 
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -194,6 +199,7 @@ public class MainPageFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+
         String sortOrder = "";
         switch (mSortOrderKey) {
             case 1: {
